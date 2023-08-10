@@ -17,8 +17,7 @@ import {cityName}  from './readline1.js'
 const city = cityName;
 console.log(`!!!${city}`);
 
-const getCoordinates = () =>{
-    return new Promise(()=>{
+const getCoordinates =  new Promise((resolve)=>{
         const callback = (res) => {
             //console.log(res);
             /// BIND EVENT HANDLERS
@@ -28,9 +27,9 @@ const getCoordinates = () =>{
                 console.log(`!!!${chunks}`);
                 let {lon, lat}=data[0]
                 
-                console.log(`!!!${lat }`);
-                console.log(`!!!${lon }`);
-               return data;
+                 console.log(`!!!${lat }`);
+                 console.log(`!!!${lon }`);
+               resolve(data);
     
             })
         
@@ -55,37 +54,41 @@ const getCoordinates = () =>{
         
         req.end();
     })
-} 
 
-const getWeather =async (data) =>{
-    return new Promise (()=>{
-        const {lat, lon} = data[0];
+const getWeather = new Promise (async(resolve)=>{
+    let data1 = await getCoordinates;
+        const {lat, lon} = data1[0];
+        console.log(lat, lon)
 
     const callback = (res) => {
         //console.log(res);
         /// BIND EVENT HANDLERS
+        let chunks = '';
+
         res.on('end', ()=> {
-            console.log('API response ended')
+            console.log('API response ended');
+            console.log(JSON.parse(chunks))
+            let {main:{temp_min, temp_max},wind:{speed} } = JSON.parse(chunks);
+            resolve({temp_min, temp_max, speed});
         })
     
         res.on('data', (chunk)=> {
-            console.log('API response with data');
             
-            const weatherData = JSON.parse(chunk.toString());
-            console.log(`!${weatherData}` );
-            return weatherData;
+             chunks += chunk.toString();
+                console.log('API response with data'); 
+            
         })
     
         res.on('error', ()=> {
             console.log('API response with error');
             
-        })
-
-    }       
+    })
+    }
+         
     // //preparerequest 
     const req = http.request({
         host: data.HOST,
-        path: data.PATH1 + `?lat=4${lat}&lon=${lon}&appid=${data.KEY}`, 
+        path: data.PATH1 + `?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&appid=${data.KEY}`, 
         method: 'GET',
         port: 80
     }, callback)
@@ -93,16 +96,17 @@ const getWeather =async (data) =>{
     req.end();
 
     })
-}
-    
-
-
-
 
     
-let cityCoordinates = await getCoordinates();
-console.log(city);
-let weatherData = await getWeather (cityCoordinates);
+
+
+
+
+
+
+let weatherData = await getWeather;   
+console.log({weatherData});
+
 
 console.log(weatherData);
 
