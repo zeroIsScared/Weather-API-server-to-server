@@ -1,4 +1,4 @@
-import http from 'http'
+import http from 'node:http'
 import data from "./config.json" assert {type: "json"}
 
 //HW: read city name from console
@@ -9,77 +9,62 @@ import data from "./config.json" assert {type: "json"}
 
 
 
- export const getCoordinates = (city) => {
+export const getCoordinates = (city) => {
     return new Promise((resolve) => {
-console.log(`+++${city}`);
+
         const callback = (res) => {
             //console.log(res);
             /// BIND EVENT HANDLERS
-            let chunks = '';
+            let chunks = [];
 
-            res.on('end', () => {
-                const data1 = JSON.parse(chunks);
-                
-                //let { lon, lat } = data1[0]
-
-              //  console.log(`!!!${lat}`);
-               // console.log(`!!!${lon}`);
-                resolve(data1);
-
-            })
-
-            res.on('data', (chunk) => {
-                chunks += chunk.toString();
-                console.log('API response with data');
-            })
+            res.on('data', chunk => chunks.push(chunk));
 
             res.on('error', () => {
-                console.log('API response with error');
+                console.log('API response with error')
+            });
 
-            })
+            res.on('end', () => {
+                const buffer = Buffer.concat(chunks);
+                const json_string = buffer.toString();
+                const reqData = JSON.parse(json_string);
+                resolve(reqData);
+            });
         }
-
-        // //preparerequest 
-        // const city = cb();
+        // //preparerequest        
         const req = http.request({
             host: data.HOST,
             path: `${data.PATH2}?q=${city}&appid=${data.KEY}`,
             method: 'GET',
             port: 80
-            
+
         }, callback)
-        //console.log(`!!!${data.PATH2}?q=${city}&appid=${data.KEY}`);
+
         req.end();
     });
 }
 
 
-
-export  const getWeather = (data1) => {
+export const getWeather = (data1) => {
 
     return new Promise(async (resolve) => {
-       //let data2 = await data1();
+
         const { lat, lon } = data1[0];
-        console.log(lat, lon)
+        //console.log(lat, lon)
 
         const callback = (res) => {
-            //console.log(res);
             /// BIND EVENT HANDLERS
-            let chunks = '';
+            let chunks = [];
 
             res.on('end', () => {
                 console.log('API response ended');
-                console.log(JSON.parse(chunks))
-                let { main: { temp_min, temp_max }, wind: { speed }, name } = JSON.parse(chunks);
-                resolve({ temp_min, temp_max, speed, name });
+                const buffer = Buffer.concat(chunks);
+                const json_string = buffer.toString();
+                const reqData = JSON.parse(json_string);
+
+                resolve(reqData);
             })
 
-            res.on('data', (chunk) => {
-
-                chunks += chunk.toString();
-                console.log('API response with data');
-
-            })
+            res.on('data', chunk => chunks.push(chunk));
 
             res.on('error', () => {
                 console.log('API response with error');
@@ -90,7 +75,7 @@ export  const getWeather = (data1) => {
         // //preparerequest 
         const req = http.request({
             host: data.HOST,
-            path: `${data.PATH1}?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&appid=${data.KEY}`,
+            path: `${data.PATH1}?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&appid=${data.KEY}&units=metric`,
             method: 'GET',
             port: 80
         }, callback)
@@ -101,19 +86,16 @@ export  const getWeather = (data1) => {
 }
 
 
-export const displayCurrentCityWeather =  (weatherData) => {   
+export const displayCurrentCityWeather = (weatherData) => {
 
-    console.log(`\nThe current weather in ${weatherData.name} is:\n`);
-    console.log(`>>> min temperature ${weatherData.temp_min} F\n`);
-    console.log(`>>> max tempetrature ${weatherData.temp_max} F\n`);
-    console.log(`>>> wind speed ${weatherData.speed} m/s\n`);
-    
+    const { main: { temp_min, temp_max }, wind: { speed }, name } = weatherData;
+
+    console.log(`\nThe current weather in ${name} is:\n`);
+    console.log(`>>> min temperature ${temp_min} C\n`);
+    console.log(`>>> max tempetrature ${temp_max} C\n`);
+    console.log(`>>> wind speed ${speed} m/s\n`);
+
 }
-
-//displayCurrentCityWeather();
-
-
-
 //does this send the request?
 //1) node request build in
 //2) node -> npm
