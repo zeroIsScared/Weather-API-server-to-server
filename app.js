@@ -10,7 +10,7 @@ import data from "./config.json" assert {type: "json"}
 
 
 export const getCoordinates = (city) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
 
         const callback = (res) => {
             //console.log(res);
@@ -28,6 +28,7 @@ export const getCoordinates = (city) => {
                 const json_string = buffer.toString();
                 const reqData = JSON.parse(json_string);
                 resolve(reqData);
+                reject(`Something went wrong, please try to enter the city name  again! 1`);
             });
         }
         // //preparerequest        
@@ -46,7 +47,7 @@ export const getCoordinates = (city) => {
 
 export const getWeather = (data1) => {
 
-    return new Promise(async (resolve) => {
+    return new Promise(async (resolve, reject) => {
 
         const { lat, lon } = data1[0];
         //console.log(lat, lon)
@@ -62,6 +63,7 @@ export const getWeather = (data1) => {
                 const reqData = JSON.parse(json_string);
 
                 resolve(reqData);
+                reject(`Something went wrong, please check your network connection! 2`);
             })
 
             res.on('data', chunk => chunks.push(chunk));
