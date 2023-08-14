@@ -1,21 +1,24 @@
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-//import { weatherDisplayed } from './app.js';
-//import { displayCurrentCityWeather } from './app.js';
+import { displayCurrentCityWeather, getCoordinates, getWeather} from './app.js';
+
 
 const rl = readline.createInterface({ input, output });
 
-let weatherDisplayed;
 
-export let cityName = async () => {
-    if (weatherDisplayed === true) {
-        await rl.question(`Enter a city name >> `);
-        return weatherDisplayed = false;
-    }
+ let mainLoop = async () => {
+   
+         const city = await rl.question (`Enter a city name >> `); 
+            console.log(`!!!<<<<<<${city}`)            
+            const coordinates =  await getCoordinates(city);
+            console.log(coordinates)
+            const weather =  await getWeather(coordinates);
+            displayCurrentCityWeather(weather);
+            mainLoop();              
+  
 }
 
-export { weatherDisplayed };
+ mainLoop();
 
-// rl.on('line', (cityName) => {
-//     displayCurrentCityWeather();
-// }); 
+
+

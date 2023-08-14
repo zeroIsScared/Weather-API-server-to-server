@@ -1,12 +1,5 @@
 import http from 'http'
 import data from "./config.json" assert {type: "json"}
-import * as readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
-import { cityName, weatherDisplayed } from './readline1.js';
-
-
-const rl = readline.createInterface({ input, output });
-
 
 //HW: read city name from console
 //print to console temp min max, wind, ..
@@ -16,22 +9,22 @@ const rl = readline.createInterface({ input, output });
 
 
 
-const getCoordinates = (city) => {
+ export const getCoordinates = (city) => {
     return new Promise((resolve) => {
-
+console.log(`+++${city}`);
         const callback = (res) => {
             //console.log(res);
             /// BIND EVENT HANDLERS
             let chunks = '';
 
             res.on('end', () => {
-                const data = JSON.parse(chunks);
-                console.log(`!!!${chunks}`);
-                let { lon, lat } = data[0]
+                const data1 = JSON.parse(chunks);
+                
+                //let { lon, lat } = data1[0]
 
-                console.log(`!!!${lat}`);
-                console.log(`!!!${lon}`);
-                resolve(data);
+              //  console.log(`!!!${lat}`);
+               // console.log(`!!!${lon}`);
+                resolve(data1);
 
             })
 
@@ -47,23 +40,25 @@ const getCoordinates = (city) => {
         }
 
         // //preparerequest 
+        // const city = cb();
         const req = http.request({
             host: data.HOST,
-            path: data.PATH2 + `?q=${city}&appid=${data.KEY}`,
+            path: `${data.PATH2}?q=${city}&appid=${data.KEY}`,
             method: 'GET',
             port: 80
+            
         }, callback)
-
+        //console.log(`!!!${data.PATH2}?q=${city}&appid=${data.KEY}`);
         req.end();
     });
 }
 
 
 
-const getWeather = () => {
+export  const getWeather = (data1) => {
 
     return new Promise(async (resolve) => {
-        let data1 = await getCoordinates(cityName());
+       //let data2 = await data1();
         const { lat, lon } = data1[0];
         console.log(lat, lon)
 
@@ -95,7 +90,7 @@ const getWeather = () => {
         // //preparerequest 
         const req = http.request({
             host: data.HOST,
-            path: data.PATH1 + `?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&appid=${data.KEY}`,
+            path: `${data.PATH1}?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&appid=${data.KEY}`,
             method: 'GET',
             port: 80
         }, callback)
@@ -105,26 +100,17 @@ const getWeather = () => {
     });
 }
 
-//export let weatherDisplayed;
 
-const displayCurrentCityWeather = async () => {
+export const displayCurrentCityWeather =  (weatherData) => {   
 
-    const weatherData = await getWeather();
-
-    console.log(`The current weather in ${weatherData.name} F is:\n`);
-    console.log(`>>> min temperature ${weatherData.temp_min} F\n`)
-    console.log(`>>> max tempetrature ${weatherData.temp_max} F\n`)
-    console.log(`>>> wind speed ${weatherData.speed} m\s\n`)
-    weatherDisplayed = true;
-    // cityName();
-    //    return  weatherDataWasDisplayed = true;
-    // if weatherDisopayed = true Function to get intput
+    console.log(`\nThe current weather in ${weatherData.name} is:\n`);
+    console.log(`>>> min temperature ${weatherData.temp_min} F\n`);
+    console.log(`>>> max tempetrature ${weatherData.temp_max} F\n`);
+    console.log(`>>> wind speed ${weatherData.speed} m/s\n`);
+    
 }
 
-rl.question(
-    displayCurrentCityWeather()
-
-);
+//displayCurrentCityWeather();
 
 
 
