@@ -14,30 +14,32 @@ let mainLoop = async () => {
                 console.log(`\nYou've entered an invalid city name, please try again!\n`);
                 mainLoop();
         } else {
-                try {
-                        const coordinates = await getCoordinates(city);
+                let coordinates;
+              try {
+                coordinates= await getCoordinates(city);
+              } catch (error) {
+                 console.log(`!!!!11${error.message}!!!!`);
+              }
                         //console.log(coordinates[0]);
                         if (coordinates[0] === undefined) {
                                 console.log('\nIt seems that the city name entered is not valid, please try again!\n');
                                 mainLoop();
                         } else {
+                                let weather;
                                 try {
-                                        const weather = await getWeather(coordinates);
-                                        displayCurrentCityWeather(weather);
-                                        mainLoop();
-                                } catch (error) {
-                                        console.error(error);
-                                }
-                        }
+                                        weather = await getWeather(coordinates);
+                                       
+                              } catch (error) {
+                                console.log(`!!!!22${error.message}!!!!`);
+                               }
 
-                } catch (error) {
-                        console.error(error);
+                               displayCurrentCityWeather(weather);
+                               mainLoop();
+                       }              
 
-                }
-        }
+               }
 }
 
 mainLoop();
-
 
 
