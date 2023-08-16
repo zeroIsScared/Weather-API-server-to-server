@@ -19,16 +19,14 @@ export const getCoordinates = (city) => {
 
             res.on('data', chunk => chunks.push(chunk));
 
-            res.on('error', () => {
-                console.log('API response with error')
-            });
+            res.on('error', error => reject(`Something went wrong ${error.message}, please check your network connection!1 `));
 
             res.on('end', () => {
                 const buffer = Buffer.concat(chunks);
                 const json_string = buffer.toString();
                 const reqData = JSON.parse(json_string);
-                resolve(reqData);
-                reject(`Something went wrong, please try to enter the city name  again! 1`);
+
+                resolve(reqData);               
             });
         }
         // //preparerequest        
@@ -47,7 +45,7 @@ export const getCoordinates = (city) => {
 
 export const getWeather = (data1) => {
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise( (resolve, reject) => {
 
         const { lat, lon } = data1[0];
         //console.log(lat, lon)
@@ -61,17 +59,13 @@ export const getWeather = (data1) => {
                 const buffer = Buffer.concat(chunks);
                 const json_string = buffer.toString();
                 const reqData = JSON.parse(json_string);
-
-                resolve(reqData);
-                reject(`Something went wrong, please check your network connection! 2`);
+               
+                resolve(reqData);                
             })
 
             res.on('data', chunk => chunks.push(chunk));
 
-            res.on('error', () => {
-                console.log('API response with error');
-
-            })
+           res.on('error', error => reject(console.log(`Something went wrong ${error.message}, please check your network connection! 2`)));
         }
 
         // //preparerequest 
